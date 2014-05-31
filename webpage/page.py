@@ -9,9 +9,11 @@ import json
 import fetcher
 import tempfile
 
-from parser import Parser
-from urlparse import urlparse
 from os.path import basename
+from urlparse import urlparse
+
+from parser import Parser
+from template import PageTemplate
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
@@ -20,7 +22,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
 class Webpage(object):
     ''' Simple Web page archiver
     '''
-    def __init__(self, url=None, path=None):
+    def __init__(self, url=None, path=None, template=None, rules={}):
         ''' __init__
 
         url     - webpage url
@@ -32,6 +34,12 @@ class Webpage(object):
         self.resources = dict()
         self.content = None
         self.path = path
+
+        self.template = None
+        if template:
+            self.template = PageTemplate(template)
+
+        self.rules = rules
 
 
     def is_available(self):

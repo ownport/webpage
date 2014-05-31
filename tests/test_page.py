@@ -16,6 +16,14 @@ class WebpageTest(unittest.TestCase):
         wp = Webpage(url=SOURCE_URL)
         self.assertTrue(isinstance(wp, Webpage))
 
+
+    def test_new_with_template(self):
+        ''' test_new
+        '''
+        wp = Webpage(url=SOURCE_URL, template='tests/templates/simple.template')
+        self.assertTrue(isinstance(wp, Webpage))
+
+
     def test_page_is_available(self):
         ''' test_page_is_available
         '''

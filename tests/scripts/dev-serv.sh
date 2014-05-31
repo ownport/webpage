@@ -5,7 +5,7 @@
 
 NAME=dev-serv.py
 DEV_SERV_PATH=`pwd`/tests
-DEV_SERV=$DEV_SERV_PATH/bin/$NAME
+DEV_SERV=$DEV_SERV_PATH/scripts/$NAME
 PIDFILE=$DEV_SERV_PATH/run/$NAME.pid
 DEV_SERV_LOG=$DEV_SERV_PATH/logs/dev-server.log
 OPTIONS=" --logfile=$DEV_SERV_LOG --datapath=$DEV_SERV_PATH/data/"

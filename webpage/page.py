@@ -65,6 +65,8 @@ class Webpage(object):
 
         pattern = re.compile(pattern)
         path = os.path.join(self.path, 'files/')
+        if not os.path.exists(path):
+            os.makedirs(path)
 
         parser = Parser(self.url, self.content)
         for link in parser.extract_links():

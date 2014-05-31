@@ -71,8 +71,10 @@ class Webpage(object):
             if pattern and pattern.search(link):
                 
                 parsed_url = urlparse(link)
-                filename = '-'.join(parsed_url.path.split('/'))
-                filename = ''.join([parsed_url.netloc,filename])
+                filename = ''.join([parsed_url.netloc, parsed_url.path])
+                filename = filename.replace('/', '-')
+                filename = filename.replace('_', '-')
+                filename = filename.replace(':', '-')
 
                 response = self.fetcher.fetch(link, to_file=os.path.join(path, filename))
                 response.pop(u'content')

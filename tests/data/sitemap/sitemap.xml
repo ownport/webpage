@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.google.com/schemas/sitemap/0.9">
+<url>
+	<loc>http://example.com/</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>1</priority>
+</url>
+<url>
+	<loc>http://example.com/updates.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page01.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page02.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page03.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page04.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page05.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page06.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page07.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page08.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page09.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+<url>
+	<loc>http://example.com/page10.html</loc>
+	<lastmod>2014-05-31</lastmod>
+	<changefreq>daily</changefreq>
+	<priority>0.9</priority>
+</url>
+</urlset>

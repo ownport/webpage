@@ -16,10 +16,10 @@ update-dev-packages:
 	@ pip install --upgrade bottle	
 
 test-all:
-	@ rm -R tests/results/*
+	@ rm -f -R tests/results/*
 	@ nosetests --cover-package=webpage --verbosity=1
 
 test-all-with-coverage:
-	@ rm -R tests/results/*
+	@ rm -f -R tests/results/*
 	@ nosetests --cover-package=webpage --verbosity=1 --cover-erase --with-coverage
 

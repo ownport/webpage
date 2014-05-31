@@ -63,4 +63,4 @@ class Parser(object):
         '''
         if isinstance(obj, (str, unicode)):
             return obj
-        return etree.tostring(obj, pretty_print=True)
+        return etree.tostring(obj, pretty_print=True, encoding='utf8')

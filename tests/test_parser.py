@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 
 from webpage.page import Webpage
@@ -30,6 +32,7 @@ class ParserTest(unittest.TestCase):
         '''
         parser = Parser(SOURCE_URL, wp.content)
         self.assertGreater(len(parser.extract_content('//head/title/text()', join_by=' ')), 10) 
+        self.assertEqual(parser.extract_content('//body/h1[@class="lang-ru"]/text()', join_by=' '), u'Тестовая страница')
 
 
     def test_failed_extract_content(self):
@@ -48,6 +51,7 @@ class ParserTest(unittest.TestCase):
         if SOURCE_URL in parser_block.extract_links():
             return
         raise RuntimeError("Source URL was not found in extracted links")
+
 
     def test_extract_content_by_rules(self):
         ''' test_extract_content_by_rules

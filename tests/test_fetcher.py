@@ -37,9 +37,6 @@ class FetcherTest(unittest.TestCase):
         response = fetch.fetch('http://localhost:8888/timeout')
         self.assertEqual(response[u'status-code'], -2)
 
-        response = fetch.check('http://localhost:8888/timeout')
-        self.assertEqual(response[u'status-code'], -2)
-
 
     def test_save_to_file(self):
         ''' test_save_to_file

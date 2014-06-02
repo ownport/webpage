@@ -66,35 +66,7 @@ class Fetcher(object):
         self.fetch_interval = fetch_interval
 
 
-    def check(self, url):
-        ''' check URL by HEAD request
-        '''    
-        response = dict()
-        
-        try:
-            resp = requests.head(url, headers=self.headers, timeout=self.timeout)
-        
-        except requests.exceptions.ConnectionError, err:
-            response['status-code'] = -1
-            response['error-msg'] = str(err.message)
-            return response
-
-        except requests.exceptions.Timeout, err:
-            response['status-code'] = -2
-            response['error-msg'] = 'Connection timeout'
-            return response
-            
-        if resp.status_code == CODES_OK:
-            response[u'status-code'] = resp.status_code
-            response[u'content-type'] = resp.headers['content-type']
-            response[u'url'] = unicode(resp.url)
-            for name in resp.headers:
-                response[unicode(name)] = resp.headers[name]
-
-        return response
-
-
-    def fetch(self, url, to_file=None):
+    def fetch(self, url, to_file=None, check=False):
         ''' fetch url
 
         to_file - path and filename
@@ -102,7 +74,10 @@ class Fetcher(object):
         response = dict()
         
         try:
-            resp = requests.get(url, headers=self.headers, timeout=self.timeout)
+            if check is True:
+                resp = requests.head(url, headers=self.headers, timeout=self.timeout)
+            else:
+                resp = requests.get(url, headers=self.headers, timeout=self.timeout)
 
         except requests.exceptions.ConnectionError, err:
             response['status-code'] = -1
@@ -146,6 +121,8 @@ class Fetcher(object):
 
             else:
                 response[u'content'] = resp.content
+                
+            response['length'] = len(resp.content)
 
             if to_file and response[u'content-type'] in TEXT_MEDIA_TYPES:
                 with io.open(to_file, 'w', encoding='utf8') as f:
@@ -155,4 +132,13 @@ class Fetcher(object):
                     f.write(response['content']) 
 
         return response
+
+
+def fetch(url, headers={}, timeout=60., fetch_interval=30., to_file=None):
+    ''' fetch url
+    '''
+    fetcher = Fetcher(headers=headers, timeout=timeout)
+    return fetcher.fetch(url, to_file=to_file)
+
+
 

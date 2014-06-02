@@ -1,13 +1,13 @@
 from lxml.html import defs
 from lxml.html.clean import Cleaner as lxmlCleaner
 
-''' remove the all or partially suspicious content from this 
-unparsed document. It supports removing embedded or script 
-content, special tags, CSS style annotations and much more.
-'''
 
 class Cleaner(lxmlCleaner):
     ''' Webpage cleaner
+
+    remove the all or partially suspicious content from this 
+    unparsed document. It supports removing embedded or script 
+    content, special tags, CSS style annotations and much more.
     '''
     scripts = True
     javascript = True

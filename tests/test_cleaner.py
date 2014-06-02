@@ -1,14 +1,8 @@
 import unittest
 
-from webpage.page import Webpage
-from webpage.parser import Parser
-from webpage.cleaner import Cleaner
+import test_core
 
-SOURCE_URL= 'http://localhost:8888/test_cleaner/index.html'
-wp = Webpage(url=SOURCE_URL)
-wp.fetch_page()
-parser = Parser(SOURCE_URL, wp.content)
-CONTENT = parser.extract_content('//html/head', join_by=' ')
+from webpage.cleaner import Cleaner
 
 class ParserTest(unittest.TestCase):
 
@@ -16,5 +10,5 @@ class ParserTest(unittest.TestCase):
         ''' test_clean_html
         '''
         cleaner = Cleaner()
-        cleaned_content = cleaner.clean_html(CONTENT)
-        self.assertGreater(len(CONTENT), len(cleaned_content))
+        cleaned_content = cleaner.clean_html(test_core.TEST_CONTENT)
+        self.assertGreater(len(test_core.TEST_CONTENT), len(cleaned_content))

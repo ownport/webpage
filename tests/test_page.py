@@ -39,7 +39,7 @@ class WebpageTest(unittest.TestCase):
         ''' test_fetch_resources
         '''
         wp = Webpage(url=SOURCE_URL, path='tests/results/test_fetch_resources/')
-        wp.resources(pattern=r'\.jpg$')
+        wp.get_resources(pattern=r'\.jpg$')
         self.assertEqual(len(wp.metadata['resources']), 4)
         wp.save()
 
@@ -57,7 +57,7 @@ class WebpageTest(unittest.TestCase):
         ''' test_fetch_resources_wo_pattern
         '''
         wp = Webpage(url=SOURCE_URL)
-        self.assertRaises(RuntimeError, wp.resources) 
+        self.assertRaises(RuntimeError, wp.get_resources) 
 
 
     def test_save_path_not_defined(self):

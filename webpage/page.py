@@ -17,6 +17,7 @@ from urlparse import urlparse
 from utils import offline_link
 from content import PageContent
 from template import PageTemplate
+from cleaner import CleanerProfile
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
@@ -63,7 +64,7 @@ class Webpage(object):
             os.makedirs(dirname)
 
 
-    def resources(self, pattern=None):
+    def get_resources(self, pattern=None):
         ''' fetch resources (images, css, javascript, video, ...)
         '''
         if not pattern:
@@ -82,6 +83,18 @@ class Webpage(object):
                 url = response.pop(u'url')
                 if url is not self.metadata['resources']:
                     self.metadata['resources'][url] = response
+                    self.metadata['resources'][url]['filename'] = offline_link(link)
+
+
+    def clean(self, cleaner_profile):
+        ''' clean content by cleaner profile
+        '''
+        if not isinstance(cleaner_profile, CleanerProfile):
+            raise RuntimeError('Error! Incorrect cleaner type, %s' % type(cleaner_profile))
+        cleaner_profile(self.content.content)
+        print self.content.content
+        # self.content = PageContent(self.url, content)
+        # assert False
 
 
     def save(self):
@@ -105,6 +118,7 @@ class Webpage(object):
 
         # save content
         offline_content = copy.deepcopy(self.content)
-        offline_content.make_links_offline()
+        offline_links = dict([(url, self.metadata['resources'][url]['filename']) for url in self.metadata['resources']])
+        offline_content.make_links_offline(offline_links=offline_links)
         offline_content.save(os.path.join(self.path, 'source.html'))
 

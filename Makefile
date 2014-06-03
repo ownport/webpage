@@ -6,6 +6,9 @@ update-packages:
 	@ pip install --upgrade lxml
 
 update-dev-packages:
+	@ echo 'update pylint'
+	@ pip install --upgrade pylint
+
 	@ echo 'update nose'
 	@ pip install --upgrade nose
 

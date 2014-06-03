@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 TEST_CONTENT = '''
 <html>
     <head>
@@ -9,6 +11,9 @@ TEST_CONTENT = '''
         <a href="http://example.com/index.html">Home</a>
         <a href="http://example.com/articles.html">Articles</a>
         <img src="http://localhost:8888/logo.jpg" />
+
+        <div class="special-characters">‘topographic structures’</div>
+        <script type='text/javascript' src='jquery.js'></script>
     </body>
 </html>
 '''
@@ -16,11 +21,11 @@ TEST_CONTENT = '''
 TEST_URL_LIST = [
     'http://example.com/img1.jpg', 'http://example.com/index1.html', 
     'http://example.com/index.html', 'http://example.com/articles.html', 
-    'http://localhost:8888/logo.jpg',
+    'http://localhost:8888/logo.jpg', 'http://example.com/jquery.js',
 ]
 
 TEST_OFFLINE_URL_LIST = [
     'files/example.com-img1.jpg', 'files/example.com-index1.html', 
     'files/example.com-index.html', 'files/example.com-articles.html',
-    'files/localhost-8888-logo.jpg',
+    'files/localhost-8888-logo.jpg', 'files/example.com-jquery.js',
 ]

@@ -12,3 +12,4 @@ class ParserTest(unittest.TestCase):
         cleaner = Cleaner()
         cleaned_content = cleaner.clean_html(test_core.TEST_CONTENT)
         self.assertGreater(len(test_core.TEST_CONTENT), len(cleaned_content))
+

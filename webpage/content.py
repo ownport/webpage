@@ -3,6 +3,7 @@
 import lxml
 import urlparse
 
+from cleaner import Cleaner
 from utils import validate_url
 from utils import offline_link
 
@@ -41,11 +42,20 @@ class PageContent(object):
         self.content.make_links_absolute(self.base_url)
 
 
-    def make_links_offline(self):
-        ''' Rename all the links in the document for offline use. 
+    def make_links_offline(self, offline_links={}):
+        ''' Rename links in the document for offline use.
+
+        if offline_links is not defined, rename all links 
         '''
+
         for element, attribute, link, pos in self.content.iterlinks():
-            element.set(attribute, offline_link(link))
+            if offline_links:
+                if link in offline_links:
+                    for k,v in element.items():
+                        if v.find(link) >= 0:
+                            element.set(k, v.replace(link, offline_links[link]))
+            else:
+                element.set(attribute, offline_link(link))
 
 
     def links(self):
@@ -71,7 +81,7 @@ class PageContent(object):
     def to_unicode(self):
         ''' convert content to unicode 
         '''
-        content = lxml.html.tostring(self.content, pretty_print=True, encoding='utf8') 
+        content = lxml.html.tostring(self.content, encoding='utf-8') 
         return content.strip()
 
 
@@ -79,4 +89,4 @@ class PageContent(object):
         ''' save content to file
         '''
         content = lxml.etree.ElementTree(self.content)
-        content.write(filename, encoding='utf8', method="html")
+        content.write(filename, encoding='utf-8', method="html")

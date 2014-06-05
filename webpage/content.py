@@ -77,6 +77,18 @@ class PageContent(object):
                 elements.append(PageContent(self.base_url, element))
         return elements
 
+
+    def remove(self, xpath=None):
+        ''' remove content by xpath
+        '''
+        if not xpath:
+            raise RuntimeError('Error! Xpath is not defined')
+        try:
+            for element in self.content.xpath(xpath):
+                element.getparent().remove(element)
+        except lxml.etree.XPathEvalError:
+            raise RuntimeError('Error! Incorrect Xpath definition, %s' % xpath)
+
     
     def to_unicode(self):
         ''' convert content to unicode 

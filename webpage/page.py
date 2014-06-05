@@ -86,6 +86,12 @@ class Webpage(object):
                     self.metadata['resources'][url]['filename'] = offline_link(link)
 
 
+    def remove(self, xpath=None):
+        ''' remove content by xpath
+        '''
+        self.content.remove(xpath)
+
+
     def clean(self, cleaner_profile):
         ''' clean content by cleaner profile
         '''

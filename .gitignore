@@ -52,3 +52,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# test content
+archive/
+tests/run/
+tests/results/
+.pylink-report

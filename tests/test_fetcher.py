@@ -16,6 +16,10 @@ class FetcherTest(unittest.TestCase):
             'user-agent': fetcher.USER_AGENT,
         }
         fetch = fetcher.Fetcher(headers=headers)
+
+        response = fetch.fetch('http://localhost:8888/sitemap/sitemap.xml.gz', check=True)
+        self.assertEqual(response['status-code'], CODES_OK)
+
         response = fetch.fetch('http://localhost:8888/sitemap/sitemap.xml.gz')
         content = response['content']
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="UTF-8"?>'))

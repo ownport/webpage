@@ -60,6 +60,25 @@ class WebpageTest(unittest.TestCase):
         self.assertRaises(RuntimeError, wp.get_resources) 
 
 
+    def test_remove_content(self):
+        ''' test_remove_content
+        '''
+        wp = Webpage(url=SOURCE_URL)
+        self.assertRaises(RuntimeError, wp.remove)
+
+        wp.remove('//a')
+        wp.remove('//img')
+        wp.remove('//link')
+        wp.remove('//script')
+        wp.get_resources('//a')
+        wp.get_resources('//img')
+        wp.get_resources('//link')
+        wp.get_resources('//script')
+        self.assertEqual(len(wp.metadata['resources']), 0) 
+
+        self.assertRaises(RuntimeError, wp.remove, ' ')
+
+
     def test_save_path_not_defined(self):
         ''' test_save_metadata_path_not_defined
         '''

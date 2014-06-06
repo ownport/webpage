@@ -98,9 +98,6 @@ class Webpage(object):
         if not isinstance(cleaner_profile, CleanerProfile):
             raise RuntimeError('Error! Incorrect cleaner type, %s' % type(cleaner_profile))
         cleaner_profile(self.content.content)
-        print self.content.content
-        # self.content = PageContent(self.url, content)
-        # assert False
 
 
     def save(self, filename='index', metadata=True, resources=True):

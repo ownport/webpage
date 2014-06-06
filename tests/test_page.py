@@ -4,6 +4,7 @@ import unittest
 
 from webpage.page import Webpage
 from webpage.content import PageContent
+from webpage.cleaner import CleanerProfile
 
 from webpage.fetcher import CODES_OK
 
@@ -77,6 +78,33 @@ class WebpageTest(unittest.TestCase):
         self.assertEqual(len(wp.metadata['resources']), 0) 
 
         self.assertRaises(RuntimeError, wp.remove, ' ')
+
+
+    def test_clean_page(self):
+        '''  test_clean_page
+        '''
+        class TestCleanerProfile(CleanerProfile):
+            scripts = True
+        test_cleaner_profile = TestCleanerProfile()
+
+        wp = Webpage(url=SOURCE_URL)
+        wp.clean(test_cleaner_profile)
+        wp.get_resources('//script')
+        self.assertEqual(wp.metadata['resources'], {})
+
+        self.assertRaises(RuntimeError, wp.clean, TestCleanerProfile)
+
+
+    def test_save_page(self):
+        ''' test_save_page
+        '''
+        wp = Webpage(url=SOURCE_URL)
+        self.assertRaises(RuntimeError, wp.save)
+
+        wp = Webpage(url=SOURCE_URL, path='tests/results/test_page_save/')
+        wp.save()
+        self.assertTrue(os.path.exists(os.path.join('tests/results/test_page_save/', 'index.html')))
+        self.assertTrue(os.path.exists(os.path.join('tests/results/test_page_save/', 'index.metadata')))
 
 
     def test_save_path_not_defined(self):

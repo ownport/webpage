@@ -53,6 +53,21 @@ class PageContentTest(unittest.TestCase):
         self.assertEqual(len(content.extract(xpath='//body/img')), 1)
 
 
+    def test_remove_content(self):
+        ''' test_remove_content
+        '''
+        content = PageContent('http://example.com', test_core.TEST_CONTENT)
+        self.assertRaises(RuntimeError, content.remove)
+
+        content.remove('//a')
+        content.remove('//img')
+        content.remove('//link')
+        content.remove('//script')
+        self.assertEqual(set(content.links()), set()) 
+
+        self.assertRaises(RuntimeError, content.remove, ' ')
+
+
     def test_to_unicode(self):
         ''' test_to_unicode
         '''

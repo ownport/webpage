@@ -43,13 +43,13 @@ class WebpageTest(unittest.TestCase):
         self.assertEqual(len(wp.metadata['resources']), 4)
         wp.save()
 
-        self.assertTrue(os.path.exists(os.path.join('tests/results/test_fetch_resources/', 'index.json')))
-        self.assertTrue(os.path.exists(os.path.join('tests/results/test_fetch_resources/', 'resources.json')))
+        self.assertTrue(os.path.exists(os.path.join('tests/results/test_fetch_resources/', 'index.metadata')))
+        self.assertTrue(os.path.exists(os.path.join('tests/results/test_fetch_resources/', 'index.resources')))
 
-        index_json = json.loads(open(os.path.join('tests/results/test_fetch_resources/', 'index.json')).read())
+        index_json = json.loads(open(os.path.join('tests/results/test_fetch_resources/', 'index.metadata')).read())
         self.assertEqual(index_json['url'], SOURCE_URL)
 
-        resources_json = json.loads(open(os.path.join('tests/results/test_fetch_resources/', 'resources.json')).read())
+        resources_json = json.loads(open(os.path.join('tests/results/test_fetch_resources/', 'index.resources')).read())
         self.assertTrue(u'http://localhost:8888/test_page/cover/001.jpg' in resources_json.keys())
 
 

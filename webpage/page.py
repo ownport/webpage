@@ -103,28 +103,38 @@ class Webpage(object):
         # assert False
 
 
-    def save(self):
+    def save(self, filename='index', metadata=True, resources=True):
         ''' save metadata and content
+
+        filename - defines just filename for three files: 
+            - <filename>.html 
+            - <filename>.metadata 
+            - <filename>.resources
+
+        Only the first one is HTML file, the rest of files are JSON files
+
+        metadata - if True, HTTP response information will be stored into .metadata file
+        resources - If True, resources metadata will be stores into .resources file 
         '''
         if not self.path:
             raise RuntimeError('Error! The path for storing content is not defined')
 
-        test_fullpath = os.path.join(self.path, 'test.html')
-        if not os.path.exists(test_fullpath):
-            self._make_offline_dir(test_fullpath)
+        if not os.path.exists(self.path):
+            self._make_offline_dir(self.path)
 
         # save content metadata
-        with io.open(os.path.join(self.path, 'index.json'), 'w', encoding='utf8') as meta:
-            meta.write(unicode(json.dumps(self.metadata['page'], indent=4, sort_keys=True)) + '\n')
+        if metadata:
+            with io.open(os.path.join(self.path, '%s.metadata' % filename), 'w', encoding='utf8') as meta:
+                meta.write(unicode(json.dumps(self.metadata['page'], indent=4, sort_keys=True)) + '\n')
 
         # save resources metadata
-        if self.metadata['resources']:
-            with io.open(os.path.join(self.path, 'resources.json'), 'w', encoding='utf8') as meta:
+        if resources and self.metadata['resources']:
+            with io.open(os.path.join(self.path, '%s.resources' % filename), 'w', encoding='utf8') as meta:
                 meta.write(unicode(json.dumps(self.metadata['resources'], indent=4, sort_keys=True)) + '\n')
 
         # save content
         offline_content = copy.deepcopy(self.content)
         offline_links = dict([(url, self.metadata['resources'][url]['filename']) for url in self.metadata['resources']])
         offline_content.make_links_offline(offline_links=offline_links)
-        offline_content.save(os.path.join(self.path, 'source.html'))
+        offline_content.save(os.path.join(self.path, '%s.html' % filename))
 

@@ -1,5 +1,11 @@
 import string
+import struct
 import urlparse
+
+
+from gzip import GzipFile
+from cStringIO import StringIO
+
 
 def validate_url(url):
     ''' simple URL validation
@@ -29,5 +35,32 @@ def offline_link(link, path='files/'):
     link = link.replace(':', '-')
     link = urlparse.urljoin(path, link)
     return link
+
+
+def gunzip(data):
+    """Gunzip the given data and return as much data as possible.
+
+    This is resilient to CRC checksum errors.
+
+    source: https://github.com/scrapy/scrapy/blob/master/scrapy/utils/gz.py
+    """
+    output = ''
+    chunk = '.'
+    with GzipFile(fileobj=StringIO(data)) as f: 
+        while chunk:
+            try:
+                chunk = f.read(65536)
+                output += chunk
+            except (IOError, EOFError, struct.error), err:
+                # complete only if there is some data, otherwise re-raise
+                # see issue 87 (https://github.com/scrapy/scrapy/issues/87) 
+                # about catching struct.error some pages are quite small so 
+                # output is '' and f.extrabuf contains the whole page content
+                if output or f.extrabuf:
+                    output += f.extrabuf
+                    break
+                else:
+                    raise
+    return output
 
 

@@ -1,0 +1,17 @@
+html {
+	overflow-y: scroll
+}
+
+* {
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+ul,ol {
+	list-style-type: none;
+}
+
+h1,h2,h3,h4,h5 { 
+	font-weight: normal;
+}

@@ -33,6 +33,7 @@ def offline_link(link, path='files/'):
     link = link.replace('/', '-')
     link = link.replace('_', '-')
     link = link.replace(':', '-')
+    link = link.replace('&', '-')
     link = urlparse.urljoin(path, link)
     return link
 

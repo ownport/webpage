@@ -61,6 +61,14 @@ class WebpageTest(unittest.TestCase):
         self.assertRaises(RuntimeError, wp.get_resources) 
 
 
+    def test_extract(self):
+        ''' test_extract
+        '''
+        wp = Webpage(url=SOURCE_URL)
+        title = ''.join([title.content.text for title in wp.extract('//head/title/text()')])
+        self.assertEqual(title, 'test-page-title') 
+
+
     def test_remove_content(self):
         ''' test_remove_content
         '''

@@ -64,6 +64,12 @@ class Webpage(object):
             os.makedirs(dirname)
 
 
+    def extract(self, xpath):
+        ''' returns content extracted by xpath
+        '''
+        return self.content.extract(xpath)
+
+
     def get_resources(self, pattern=None):
         ''' fetch resources (images, css, javascript, video, ...)
         '''

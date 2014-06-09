@@ -28,8 +28,10 @@ class UtilsTest(unittest.TestCase):
         ''' test_offline_link
         '''
         self.assertEqual(offline_link('http://example.com', path='files/'), 'files/example.com')
-        self.assertEqual(offline_link('http://example.com?page=1', path='files/'), 'files/example.com-page=1')
+        self.assertEqual(offline_link('http://example.com?page=1', path='files/'), 'files/example.com-page-1')
         self.assertEqual(offline_link('http://example.com/index.html', path='files/'), 'files/example.com-index.html')
+        self.assertEqual(offline_link('http://example.com/index.html?ajax&amp;test', path='files/'), 
+                        'files/example.com-index.html-ajax-test')
 
 
     def test_gunzip_no_gzip_file_raises(self):

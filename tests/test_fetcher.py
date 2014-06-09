@@ -49,7 +49,6 @@ class FetcherTest(unittest.TestCase):
         fetch = fetcher.Fetcher()
         response = fetch.fetch('http://localhost:8888/index.html', to_file='tests/results/index.html')
         self.assertEqual(response[u'status-code'], 200)
-        self.assertTrue(os.path.exists('tests/results/index.html'))
 
 
     def test_fetch_with_western_encoding(self):
@@ -59,3 +58,14 @@ class FetcherTest(unittest.TestCase):
         response = fetch.fetch('http://localhost:8888/index-western-encoding.html')
         self.assertEqual(response[u'status-code'], 200)
         self.assertEqual(response[u'encoding'], u'utf-8')
+
+
+    def test_fetch_file_with_orig_name(self):
+        ''' test_fetch_file_with_orig_name
+        '''
+        fetch = fetcher.Fetcher()
+        response = fetch.fetch('http://localhost:8888/text-file.txt', to_file='tests/results/textfile')
+        self.assertEqual(response[u'status-code'], 200)
+        self.assertFalse(os.path.exists('tests/results/textfile'))
+        self.assertTrue(os.path.exists('tests/results/text-file.txt'))
+

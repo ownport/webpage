@@ -1,0 +1,10 @@
+Forced Download
+
+Most browsers try to open downloaded files if the MIME type is known and assigned to an application (e.g. PDF files). If this is not what you want, you can force a download dialog and even suggest a filename to the user:
+
+@route('/download/<filename:path>')
+def download(filename):
+    return static_file(filename, root='/path/to/static/files', download=filename)
+
+If the download parameter is just True, the original filename is used.
+

@@ -4,6 +4,8 @@
 #
 
 import io
+import os
+import re
 import requests
 
 from webpage.utils import gunzip
@@ -98,14 +100,28 @@ class Fetcher(object):
                 
             response['length'] = len(resp.content)
 
-            if to_file and response[u'content-type'] in TEXT_MEDIA_TYPES:
-                with io.open(to_file, 'w', encoding='utf8') as f:
-                    f.write(response['content']) 
-            elif to_file:
-                with io.open(to_file, 'wb') as f:
-                    f.write(response['content']) 
+            if to_file:
+                self.save(to_file, response)
 
         return response
+
+
+    def save(self, filename, response):
+        ''' save content for file
+        '''
+        if filename and response[u'content-type'] in TEXT_MEDIA_TYPES:
+            content_disposition = response.get(u'content-disposition')
+            if content_disposition:
+                new_filename = ''.join(re.findall(
+                                        r'attachment;\s*filename="(.+)"', 
+                                        content_disposition))
+                if new_filename:
+                    filename = os.path.join(os.path.dirname(filename), new_filename)
+            with io.open(filename, 'w', encoding='utf8') as f:
+                f.write(response['content']) 
+        elif filename:
+            with io.open(filename, 'wb') as f:
+                f.write(response['content']) 
 
 
 def fetch(url, headers={}, timeout=60., fetch_interval=30., to_file=None):

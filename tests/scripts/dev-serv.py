@@ -27,6 +27,12 @@ def index(filename=None):
         time.sleep(3)
         filename = 'index.html'
     
+    elif filename == 'text-file.txt':
+        bottle.response.content_type = 'text/plain'
+        bottle.response.headers['content-disposition'] = 'attachment; filename="text-file.txt"'
+        # return bottle.static_file(filename, root=DATA_PATH)  
+        return open(os.path.join(DATA_PATH, 'text-file.txt')).read()      
+
     elif filename.endswith('.xml.gz'):
         return bottle.static_file(filename, root=DATA_PATH, 
                                 mimetype='application/octet-stream')        

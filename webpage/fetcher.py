@@ -6,6 +6,7 @@
 import io
 import os
 import re
+import hashlib
 import requests
 
 from webpage.utils import gunzip
@@ -70,6 +71,7 @@ class Fetcher(object):
             response[u'status-code'] = resp.status_code
 
             response[u'url'] = unicode(resp.url)
+            response[u'url-hash'] = hashlib.sha1(response[u'url']).hexdigest()
             for name in resp.headers:
                 response[unicode(name)] = unicode(resp.headers[name])
 
@@ -97,8 +99,9 @@ class Fetcher(object):
 
             else:
                 response[u'content'] = resp.content
-                
-            response['length'] = len(resp.content)
+            
+            response[u'content-hash'] = hashlib.sha1(resp.content).hexdigest()    
+            response[u'length'] = len(resp.content)
 
             if to_file:
                 self.save(to_file, response)

@@ -26,6 +26,16 @@ class FetcherTest(unittest.TestCase):
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="UTF-8"?>'))
 
 
+    def test_response_headers(self):
+        ''' test_response_headers
+        '''
+        fetch = fetcher.Fetcher()
+        response = fetch.fetch('http://localhost:8888/index.html')
+        self.assertEqual(response['status-code'], 200)
+        self.assertEqual(response['url-hash'], u'4204f9cf248b6a61443060569213b8904e91fac7')
+        self.assertEqual(response['content-hash'], u'53917a417764506089e4ede60cc8b366937ca8c3')
+
+
     def test_gzip_support(self):
         ''' test_gzip_support
         '''

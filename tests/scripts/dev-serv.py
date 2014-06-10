@@ -27,11 +27,16 @@ def index(filename=None):
         time.sleep(3)
         filename = 'index.html'
     
-    elif filename == 'text-file.txt':
+    elif filename.startswith('attachment'):
+        if filename == 'attachment-unquoted':
+            bottle.response.headers['content-disposition'] = 'attachment; filename=text-file-unquoted.txt'
+            filename = 'text-file.txt'
+        else:
+            bottle.response.headers['content-disposition'] = 'attachment; filename="text-file.txt"'
+            filename = 'text-file.txt'
+
         bottle.response.content_type = 'text/plain'
-        bottle.response.headers['content-disposition'] = 'attachment; filename="text-file.txt"'
-        # return bottle.static_file(filename, root=DATA_PATH)  
-        return open(os.path.join(DATA_PATH, 'text-file.txt')).read()      
+        return open(os.path.join(DATA_PATH, filename)).read()      
 
     elif filename.endswith('.xml.gz'):
         return bottle.static_file(filename, root=DATA_PATH, 

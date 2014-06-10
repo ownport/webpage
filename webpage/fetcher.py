@@ -113,8 +113,9 @@ class Fetcher(object):
             content_disposition = response.get(u'content-disposition')
             if content_disposition:
                 new_filename = ''.join(re.findall(
-                                        r'attachment;\s*filename="(.+)"', 
-                                        content_disposition))
+                                        r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
+                                        content_disposition, re.I))
+                print 'filename:', new_filename
                 if new_filename:
                     filename = os.path.join(os.path.dirname(filename), new_filename)
             with io.open(filename, 'w', encoding='utf8') as f:

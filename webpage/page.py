@@ -89,6 +89,7 @@ class Webpage(object):
                 url = response.pop(u'url')
                 if url is not self.metadata['resources']:
                     self.metadata['resources'][url] = response
+                    response['filename'] = response['filename'].replace(self.path, '')
                     self.metadata['resources'][url]['filename'] = response['filename']
 
 

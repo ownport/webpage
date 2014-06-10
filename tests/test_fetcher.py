@@ -76,3 +76,4 @@ class FetcherTest(unittest.TestCase):
         self.assertFalse(os.path.exists('tests/results/attachment-unquoted'))
         self.assertTrue(os.path.exists('tests/results/text-file-unquoted.txt'))
         self.assertEqual(response['filename'], 'tests/results/text-file-unquoted.txt')
+

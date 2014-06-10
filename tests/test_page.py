@@ -52,6 +52,7 @@ class WebpageTest(unittest.TestCase):
 
         resources_json = json.loads(open(os.path.join('tests/results/test_fetch_resources/', 'index.resources')).read())
         self.assertTrue(u'http://localhost:8888/test_page/cover/001.jpg' in resources_json.keys())
+        assert False
 
 
     def test_fetch_resources_wo_pattern(self):

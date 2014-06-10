@@ -124,6 +124,8 @@ class Fetcher(object):
             with io.open(filename, 'wb') as f:
                 f.write(response['content']) 
 
+        response['filename'] = filename
+
 
 def fetch(url, headers={}, timeout=60., fetch_interval=30., to_file=None):
     ''' fetch url

@@ -68,9 +68,11 @@ class FetcherTest(unittest.TestCase):
         self.assertEqual(response[u'status-code'], 200)
         self.assertFalse(os.path.exists('tests/results/attachment'))
         self.assertTrue(os.path.exists('tests/results/text-file.txt'))
+        self.assertEqual(response['filename'], 'tests/results/text-file.txt')        
 
         response = fetch.fetch('http://localhost:8888/attachment-unquoted', 
                                 to_file='tests/results/attachment-unquoted')
         self.assertEqual(response[u'status-code'], 200)
         self.assertFalse(os.path.exists('tests/results/attachment-unquoted'))
         self.assertTrue(os.path.exists('tests/results/text-file-unquoted.txt'))
+        self.assertEqual(response['filename'], 'tests/results/text-file-unquoted.txt')

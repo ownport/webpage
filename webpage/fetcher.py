@@ -109,15 +109,15 @@ class Fetcher(object):
     def save(self, filename, response):
         ''' save content for file
         '''
+        content_disposition = response.get(u'content-disposition')
+        if content_disposition:
+            new_filename = ''.join(re.findall(
+                                    r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
+                                    content_disposition, re.I))
+            if new_filename:
+                filename = os.path.join(os.path.dirname(filename), new_filename)
+
         if filename and response[u'content-type'] in TEXT_MEDIA_TYPES:
-            content_disposition = response.get(u'content-disposition')
-            if content_disposition:
-                new_filename = ''.join(re.findall(
-                                        r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
-                                        content_disposition, re.I))
-                print 'filename:', new_filename
-                if new_filename:
-                    filename = os.path.join(os.path.dirname(filename), new_filename)
             with io.open(filename, 'w', encoding='utf8') as f:
                 f.write(response['content']) 
         elif filename:

@@ -89,7 +89,7 @@ class Webpage(object):
                 url = response.pop(u'url')
                 if url is not self.metadata['resources']:
                     self.metadata['resources'][url] = response
-                    self.metadata['resources'][url]['filename'] = offline_link(link)
+                    self.metadata['resources'][url]['filename'] = response['filename']
 
 
     def remove(self, xpath=None):

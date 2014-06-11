@@ -19,14 +19,21 @@ class WebpageTest(unittest.TestCase):
         wp = Webpage(url=SOURCE_URL)
         self.assertTrue(isinstance(wp, Webpage))
         self.assertTrue(isinstance(wp.content, PageContent))
-        self.assertTrue('page' in wp.metadata)
-        self.assertEqual(wp.metadata['page']['status-code'], CODES_OK)
+        self.assertTrue('headers' in wp.metadata)
+        self.assertEqual(wp.metadata['headers']['status-code'], CODES_OK)
 
 
     def test_failed_new(self):
         ''' test_failed_new
         '''
         self.assertRaises(RuntimeError, Webpage, url='http://255.255.255.255')
+
+
+    def test_cache_page(self):
+        ''' test_cache_page
+        '''
+        wp = Webpage(url=SOURCE_URL, path='tests/data/test_cached_page/', cached=True)
+        self.assertTrue(isinstance(wp, Webpage))
 
 
     def test_new_with_template(self):

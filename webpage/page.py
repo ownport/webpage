@@ -14,7 +14,9 @@ import tempfile
 from os.path import basename
 from urlparse import urlparse
 
-from utils import offline_link
+import utils
+
+from cache import Cache
 from content import PageContent
 from template import PageTemplate
 from cleaner import CleanerProfile
@@ -26,7 +28,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
 class Webpage(object):
     ''' Simple Web page archiver
     '''
-    def __init__(self, url=None, headers={}, path=None, template=None, rules={}):
+    def __init__(self, url=None, headers={}, path=None, template=None, rules={}, cached=False):
         ''' __init__
 
         url         - webpage url
@@ -34,20 +36,20 @@ class Webpage(object):
         path        - drectory where files will be stored
         template    - webpage template
         rules       - rules for data extraction 
+        cache       - True, if required to cache page
         '''
         self.url = url
         if not headers:
             self.headers = {'user-agent': USER_AGENT}
 
-        self.metadata = {'page': {}, 'resources': {}}
-        response = fetcher.fetch(url, headers)
-        if response.get('status-code', None) == fetcher.CODES_OK: 
-            self.content = PageContent(self.url, response.pop('content'))
-            self.metadata['page'] = response 
-        else:
-            raise RuntimeError('Error! Web page is not available: %s' % self.url)
+        self.metadata = {u'headers': {}, u'resources': {}}
+        self.content = None
 
         self.path = path
+        self.cache = None
+        if cached and self.path and os.path.exists(self.path):
+            cache_dir = os.path.join(self.path, 'cache')
+            self.cache = Cache(path=cache_dir, create_dirs=True)
 
         self.template = None
         if template:
@@ -55,13 +57,24 @@ class Webpage(object):
 
         self.rules = rules
 
+        self._retrieve_page()
 
-    def _make_offline_dir(self, filename):
-        ''' check if directory for offline file is exists and create it, if not
+
+    def _retrieve_page(self):
+        ''' get page from cache if available
         '''
-        dirname = os.path.dirname(filename) 
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        if self.cache:
+            self.metadata['headers'], content = self.cache.get(self.url)
+
+        response = fetcher.fetch(self.url, self.headers)
+        if response.get('status-code', None) == fetcher.CODES_OK: 
+            self.content = PageContent(self.url, response.pop('content'))
+            self.metadata['headers'] = response 
+        else:
+            raise RuntimeError('Error! Web page is not available: %s' % self.url)
+
+        if self.cache:
+            self.cache.put(self.metadata['headers'], self.content)
 
 
     def extract(self, xpath):
@@ -81,8 +94,8 @@ class Webpage(object):
         for link in self.content.links():
             if pattern and pattern.search(link):
 
-                offline_filename = os.path.join(self.path, offline_link(link))
-                self._make_offline_dir(offline_filename)
+                offline_filename = os.path.join(self.path, utils.offline_link(link))
+                utils.makedirs(offline_filename)
 
                 response = fetcher.fetch(link, to_file=offline_filename)
                 response.pop(u'content')
@@ -124,12 +137,12 @@ class Webpage(object):
             raise RuntimeError('Error! The path for storing content is not defined')
 
         if not os.path.exists(self.path):
-            self._make_offline_dir(self.path)
+            utils.makedirs(self.path)
 
         # save content metadata
         if metadata:
             with io.open(os.path.join(self.path, '%s.metadata' % filename), 'w', encoding='utf8') as meta:
-                meta.write(unicode(json.dumps(self.metadata['page'], indent=4, sort_keys=True)) + '\n')
+                meta.write(unicode(json.dumps(self.metadata['headers'], indent=4, sort_keys=True)) + '\n')
 
         # save resources metadata
         if resources and self.metadata['resources']:

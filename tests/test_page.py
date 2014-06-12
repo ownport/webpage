@@ -29,11 +29,20 @@ class WebpageTest(unittest.TestCase):
         self.assertRaises(RuntimeError, Webpage, url='http://255.255.255.255')
 
 
-    def test_cache_page(self):
-        ''' test_cache_page
+    def test_fetch_page_with_user_agent(self):
+        ''' test_cached_page
+        '''
+        wp = Webpage(url=SOURCE_URL, headers={'user-agent': 'ownport/webpage'}, 
+                    path='tests/data/test_cached_page/', cached=True)
+        self.assertTrue(isinstance(wp, Webpage))
+
+
+    def test_cached_page(self):
+        ''' test_cached_page
         '''
         wp = Webpage(url=SOURCE_URL, path='tests/data/test_cached_page/', cached=True)
         self.assertTrue(isinstance(wp, Webpage))
+        self.assertEqual(wp.metadata['headers']['status-code'], 304)
 
 
     def test_new_with_template(self):

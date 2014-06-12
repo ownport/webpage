@@ -17,9 +17,6 @@ class Cache(object):
             raise RuntimeError('Error! Path to cache does not exist, %s' % path)
         self.path = utils.makedirs(path)
 
-        if not os.path.isdir(path):
-            raise RuntimeError('Error! Path is not directory, %s' % path)
-            
 
     def get(self, url):
         ''' get metadata by url
@@ -30,24 +27,48 @@ class Cache(object):
                 metadata = json.load(open(filepath, 'r'), encoding='utf-8')
                 if metadata.get('url') != url:
                     continue
-                content_filename = os.path.join(self.path, utils.offline_link(url, path=''))
-                return metadata, open(content_filename).read()
+                content_filename = utils.offline_link(url, path=self.path)
+                return metadata, self._get_content(content_filename)
         return None, None
 
 
     def put(self, headers, content):
         ''' put headers and content into cache
         '''
-        filename = utils.offline_link(headers['url'], path='')
-        # save content metadata
-        with io.open(os.path.join(self.path, '%s.metadata' % filename), 'w', encoding='utf8') as meta:
+        filename = utils.offline_link(headers['url'], path=self.path)
+
+        # save metadata
+        with io.open('%s.metadata' % filename, 'w', encoding='utf8') as meta:
             meta.write(unicode(json.dumps(headers, indent=4, sort_keys=True)) + '\n')
 
         # save content
-        with io.open(os.path.join(self.path, filename), 'w', encoding='utf8') as meta:
+        with io.open(filename, 'w', encoding='utf8') as meta:
             meta.write(unicode(content))
 
+    @staticmethod
+    def conditional_headers(headers={}):
+        ''' select only 'ETag' and 'Last-Modified' keys and 
+        transform its to 'If-None-Match' and 'If-Modified-Since'
+        
+        returns dict only with two keys: 'If-None-Match' and 'If-Modified-Since'
+        ''' 
+        new_headers = {}
 
+        if 'etag' in headers:
+            new_headers['if-none-match'] = headers['etag']
+
+        if 'last-modified' in headers:
+            new_headers['if-modified-since'] = headers['last-modified']
+
+        return new_headers
+
+
+    def _get_content(self, filename):
+        ''' get content from cache_dir
+        '''
+        cached_file = open(filename, 'r')
+        content = cached_file.read()
+        return content
 
 
 

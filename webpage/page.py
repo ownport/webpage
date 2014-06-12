@@ -39,8 +39,10 @@ class Webpage(object):
         cache       - True, if required to cache page
         '''
         self.url = url
-        if not headers:
-            self.headers = {'user-agent': USER_AGENT}
+        
+        self.headers = {'user-agent': USER_AGENT}
+        if headers:
+            self.headers.update(headers)
 
         self.metadata = {u'headers': {}, u'resources': {}}
         self.content = None
@@ -48,7 +50,7 @@ class Webpage(object):
         self.path = path
         self.cache = None
         if cached and self.path and os.path.exists(self.path):
-            cache_dir = os.path.join(self.path, 'cache')
+            cache_dir = os.path.join(self.path, 'cache/')
             self.cache = Cache(path=cache_dir, create_dirs=True)
 
         self.template = None
@@ -64,17 +66,30 @@ class Webpage(object):
         ''' get page from cache if available
         '''
         if self.cache:
-            self.metadata['headers'], content = self.cache.get(self.url)
-
+            headers, content = self.cache.get(self.url)
+            self.metadata['headers'] = headers
+            self.content = PageContent(self.url, content)
+            self.headers.update(self.cache.conditional_headers(self.metadata['headers']))
+        
         response = fetcher.fetch(self.url, self.headers)
-        if response.get('status-code', None) == fetcher.CODES_OK: 
+        if response.get(u'status-code') == fetcher.CODES_OK: 
             self.content = PageContent(self.url, response.pop('content'))
             self.metadata['headers'] = response 
+        
+        elif response.get(u'status-code') == 304:
+            ''' page was not modified since ...
+
+            self.content and self.metadata already contains latest info
+            '''
+            response.pop('content', None)
+            self.metadata['headers'] = response 
+        
         else:
-            raise RuntimeError('Error! Web page is not available: %s' % self.url)
+            raise RuntimeError('Error! Web page is not available, status-code: %s, %s' % 
+                                (response.get('status-code'), self.url))
 
         if self.cache:
-            self.cache.put(self.metadata['headers'], self.content)
+            self.cache.put(self.metadata['headers'], self.content.to_unicode())
 
 
     def extract(self, xpath):

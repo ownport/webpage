@@ -20,6 +20,7 @@ def log_message(obj, format, *args):
 @bottle.route('/')
 @bottle.route('/<filename:path>')
 def index(filename=None):
+
     if not filename:
         filename = 'index.html'
 

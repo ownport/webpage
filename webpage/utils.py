@@ -1,3 +1,4 @@
+import os
 import string
 import struct
 import urlparse
@@ -36,8 +37,19 @@ def offline_link(link, path='files/'):
     link = link.replace('&amp;', '-')
     link = link.replace('&', '-')
     link = link.replace('=', '-')
-    link = urlparse.urljoin(path, link)
+    link = os.path.join(path, link)
     return link
+
+
+def makedirs(path):
+    ''' create dirs if not exists
+    '''
+    dirname = os.path.dirname(path)
+    if not dirname.endswith(os.sep):
+        dirname += os.sep
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    return dirname
 
 
 def gunzip(data):

@@ -93,8 +93,8 @@ class PageContent(object):
     def to_unicode(self):
         ''' convert content to unicode 
         '''
-        content = lxml.html.tostring(self.content, encoding='utf-8') 
-        return content.strip()
+        content = lxml.html.tostring(self.content)
+        return unicode(content.strip())
 
 
     def save(self, filename):

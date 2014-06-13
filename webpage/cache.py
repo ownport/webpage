@@ -64,7 +64,7 @@ class Cache(object):
     def _get_content(self, filename):
         ''' get content from cache_dir
         '''
-        with codecs.open(filename, 'r', 'utf8') as cached_file:
+        with codecs.open(filename, 'r', encoding='utf8') as cached_file:
             content = cached_file.read()
         return content
 
@@ -72,7 +72,7 @@ class Cache(object):
     def _put_content(self, filename, content):
         ''' put content to cache
         '''
-        with codecs.open(filename, 'w', 'utf8') as cached_file:
+        with codecs.open(filename, 'w', encoding='utf8') as cached_file:
             cached_file.write(content)
 
 

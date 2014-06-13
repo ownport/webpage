@@ -37,6 +37,15 @@ class WebpageTest(unittest.TestCase):
         self.assertTrue(isinstance(wp, Webpage))
 
 
+    def test_new_cached_page(self):
+        ''' test_new_cached_page
+        '''
+        wp = Webpage(url=SOURCE_URL, path='tests/results/test_new_cached_page/', 
+                    cached=True)
+        self.assertTrue(isinstance(wp, Webpage))
+        self.assertTrue(os.path.exists('tests/results/test_new_cached_page/'))
+
+
     def test_cached_page(self):
         ''' test_cached_page
         '''

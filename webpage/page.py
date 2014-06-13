@@ -36,7 +36,7 @@ class Webpage(object):
         path        - drectory where files will be stored
         template    - webpage template
         rules       - rules for data extraction 
-        cache       - True, if required to cache page
+        cached      - True, if required to cache page
         '''
         self.url = url
         
@@ -49,7 +49,7 @@ class Webpage(object):
 
         self.path = path
         self.cache = None
-        if cached and self.path and os.path.exists(self.path):
+        if cached and self.path:
             cache_dir = os.path.join(self.path, 'cache/')
             self.cache = Cache(path=cache_dir, create_dirs=True)
 
@@ -67,9 +67,10 @@ class Webpage(object):
         '''
         if self.cache:
             headers, content = self.cache.get(self.url)
-            self.metadata['headers'] = headers
-            self.content = PageContent(self.url, content)
-            self.headers.update(self.cache.conditional_headers(self.metadata['headers']))
+            if headers and content:
+                self.metadata['headers'] = headers
+                self.content = PageContent(self.url, content)
+                self.headers.update(self.cache.conditional_headers(self.metadata['headers']))
         
         response = fetcher.fetch(self.url, self.headers)
         if response.get(u'status-code') == fetcher.CODES_OK: 

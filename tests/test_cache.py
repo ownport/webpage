@@ -1,3 +1,5 @@
+# -*- coding: utf- -*-
+
 import unittest
 
 from webpage.cache import Cache
@@ -43,3 +45,18 @@ class CacheTest(unittest.TestCase):
         self.assertEqual(Cache.conditional_headers({'url': 'http://localhost:8888/'}), {})
         self.assertEqual(Cache.conditional_headers({'etag': '12345'}), {'if-none-match': '12345'})
         self.assertEqual(Cache.conditional_headers({'last-modified': '12/3/45'}), {'if-modified-since': '12/3/45'})
+
+
+    def test_put_unicode_page(self):
+        ''' test_put_unicode_page
+        '''
+        headers = { 'url': 'http://localhost:8888/test_page/index.html' }
+        content = u'<html><body>контент, 内容, コンテンツ</body></html>'
+        cache = Cache(path='tests/results/test_cache_unicode/', create_dirs=True)
+        cache.put(headers, content)
+        self.assertEqual(cache.get('http://localhost:8888/test_page/index.html'), 
+                        (headers, content))
+
+
+
+

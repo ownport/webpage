@@ -73,6 +73,7 @@ class Webpage(object):
                 self.headers.update(self.cache.conditional_headers(self.metadata['headers']))
         
         response = fetcher.fetch(self.url, self.headers)
+
         if response.get(u'status-code') == fetcher.CODES_OK: 
             self.content = PageContent(self.url, response.pop('content'))
             self.metadata['headers'] = response 

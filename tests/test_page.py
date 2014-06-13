@@ -30,10 +30,9 @@ class WebpageTest(unittest.TestCase):
 
 
     def test_fetch_page_with_user_agent(self):
-        ''' test_cached_page
+        ''' test_fetch_page_with_user_agent
         '''
-        wp = Webpage(url=SOURCE_URL, headers={'user-agent': 'ownport/webpage'}, 
-                    path='tests/data/test_cached_page/', cached=True)
+        wp = Webpage(url=SOURCE_URL, headers={'user-agent': 'ownport/webpage'})
         self.assertTrue(isinstance(wp, Webpage))
 
 
@@ -49,7 +48,9 @@ class WebpageTest(unittest.TestCase):
     def test_cached_page(self):
         ''' test_cached_page
         '''
-        wp = Webpage(url=SOURCE_URL, path='tests/data/test_cached_page/', cached=True)
+        wp = Webpage(url=SOURCE_URL, path='tests/results/test_cached_page/', cached=True)
+
+        wp = Webpage(url=SOURCE_URL, path='tests/results/test_cached_page/', cached=True)
         self.assertTrue(isinstance(wp, Webpage))
         self.assertEqual(wp.metadata['headers']['status-code'], 304)
 

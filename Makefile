@@ -18,6 +18,9 @@ update-dev-packages:
 	@ echo 'update bottle'
 	@ pip install --upgrade bottle	
 
+	@ echo 'update mock'
+	@ pip install --upgrade mock	
+
 	@ echo 'update pydoc2md'
 	@ rm -f ../bin/pydoc2md.py
 	@ curl https://raw.githubusercontent.com/ownport/pydoc2md/master/pydoc2md.py \

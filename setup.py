@@ -21,7 +21,7 @@ setup(
     author='Andrey Usov',
     author_email='ownport@gmail.com',
     url='https://github.com/ownport/webpage',
-    packages=['webpage'],
+    packages=['webpage', 'webpage.cache'],
     package_dir={'webpage': 'webpage'},
     install_requires=requires,
     zip_safe=False,

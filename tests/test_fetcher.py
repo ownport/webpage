@@ -1,8 +1,10 @@
 import os
 import unittest
 
+
 from webpage import fetcher 
 from webpage.fetcher import CODES_OK
+from webpage.cache.adapter import CachingHTTPAdapter
 
 
 SOURCE_URL= 'http://localhost:8888/test_page/index.html'
@@ -48,7 +50,7 @@ class FetcherTest(unittest.TestCase):
     def test_timeout(self):
         ''' test_timeout
         '''
-        fetch = fetcher.Fetcher(timeout=1.)
+        fetch = fetcher.Fetcher(timeout=.001)
         response = fetch.fetch('http://localhost:8888/timeout')
         self.assertEqual(response[u'status-code'], -2)
 
@@ -87,3 +89,13 @@ class FetcherTest(unittest.TestCase):
         self.assertTrue(os.path.exists('tests/results/text-file-unquoted.txt'))
         self.assertEqual(response['filename'], 'tests/results/text-file-unquoted.txt')
 
+
+    def test_fetch_with_cache(self):
+        ''' test_fetch_with_cache
+        '''
+        caching_adapter = CachingHTTPAdapter(path='tests/results/test_fetch_with_cache/')
+        fetch = fetcher.Fetcher(caching_adapter=caching_adapter)
+        self.assertTrue(isinstance(fetch, fetcher.Fetcher))
+
+        response = fetch.fetch('http://localhost:8888/index.html')
+        response = fetch.fetch('http://localhost:8888/index.html')

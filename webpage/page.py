@@ -9,17 +9,19 @@ import re
 import json
 import copy
 import fetcher 
-import tempfile
 
 from os.path import basename
 from urlparse import urlparse
 
+from logging import getLogger
+log = getLogger(__name__)
+
 import utils
 
-from cache import Cache
 from content import PageContent
 from template import PageTemplate
 from cleaner import CleanerProfile
+from cache.adapter import CachingHTTPAdapter
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
@@ -36,7 +38,7 @@ class Webpage(object):
         path        - drectory where files will be stored
         template    - webpage template
         rules       - rules for data extraction 
-        cached      - True, if required to cache page
+        cache       - cache, webpage.cache
         '''
         self.url = url
         
@@ -48,10 +50,12 @@ class Webpage(object):
         self.content = None
 
         self.path = path
-        self.cache = None
+
+        caching_adapter = None
         if cached and self.path:
             cache_dir = os.path.join(self.path, 'cache/')
-            self.cache = Cache(path=cache_dir, create_dirs=True)
+            caching_adapter = CachingHTTPAdapter(path=cache_dir)
+        self.fetcher = fetcher.Fetcher(headers=self.headers, caching_adapter=caching_adapter)
 
         self.template = None
         if template:
@@ -65,33 +69,15 @@ class Webpage(object):
     def _retrieve_page(self):
         ''' get page from cache if available
         '''
-        if self.cache:
-            headers, content = self.cache.get(self.url)
-            if headers and content:
-                self.metadata['headers'] = headers
-                self.content = PageContent(self.url, content)
-                self.headers.update(self.cache.conditional_headers(self.metadata['headers']))
-        
-        response = fetcher.fetch(self.url, self.headers)
+        response = self.fetcher.fetch(self.url)
 
         if response.get(u'status-code') == fetcher.CODES_OK: 
             self.content = PageContent(self.url, response.pop('content'))
             self.metadata['headers'] = response 
         
-        elif response.get(u'status-code') == 304:
-            ''' page was not modified since ...
-
-            self.content and self.metadata already contains latest info
-            '''
-            response.pop('content', None)
-            self.metadata['headers'] = response 
-        
         else:
             raise RuntimeError('Error! Web page is not available, status-code: %s, %s' % 
                                 (response.get('status-code'), self.url))
-
-        if self.cache:
-            self.cache.put(self.metadata['headers'], self.content.to_unicode())
 
 
     def extract(self, xpath):

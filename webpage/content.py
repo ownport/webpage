@@ -5,7 +5,7 @@ import urlparse
 
 from cleaner import Cleaner
 from utils import validate_url
-from utils import offline_link
+from cache.utils import offline_link
 
 from lxml.html import HtmlElement
 

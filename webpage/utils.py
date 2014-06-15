@@ -2,7 +2,7 @@ import os
 import string
 import struct
 import urlparse
-
+import datetime
 
 from gzip import GzipFile
 from cStringIO import StringIO
@@ -21,24 +21,6 @@ def validate_url(url):
     if not parts.scheme in ['http', 'https', 'ftp']:
         return False
     return True
-
-
-def offline_link(link, path='files/'):
-    ''' rename link for offline use
-    ''' 
-    parsed_link = urlparse.urlparse(link)
-    link = ''.join([parsed_link.netloc, parsed_link.path])
-    for arg in [parsed_link.params, parsed_link.query, parsed_link.fragment]:
-        if arg:
-            link = '-'.join([link, arg])
-    link = link.replace('/', '-')
-    link = link.replace('_', '-')
-    link = link.replace(':', '-')
-    link = link.replace('&amp;', '-')
-    link = link.replace('&', '-')
-    link = link.replace('=', '-')
-    link = os.path.join(path, link)
-    return link
 
 
 def makedirs(path):

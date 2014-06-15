@@ -9,6 +9,7 @@ from webpage.cleaner import CleanerProfile
 from webpage.fetcher import CODES_OK
 
 SOURCE_URL= 'http://localhost:8888/test_page/index.html'
+SOURCE_URL_CACHED= 'http://localhost:8888/index.html'
 
 
 class WebpageTest(unittest.TestCase):
@@ -48,9 +49,8 @@ class WebpageTest(unittest.TestCase):
     def test_cached_page(self):
         ''' test_cached_page
         '''
-        wp = Webpage(url=SOURCE_URL, path='tests/results/test_cached_page/', cached=True)
-
-        wp = Webpage(url=SOURCE_URL, path='tests/results/test_cached_page/', cached=True)
+        wp = Webpage(url=SOURCE_URL_CACHED, path='tests/results/test_cached_page/', cached=True)
+        wp = Webpage(url=SOURCE_URL_CACHED, path='tests/results/test_cached_page/', cached=True)
         self.assertTrue(isinstance(wp, Webpage))
         self.assertEqual(wp.metadata['headers']['status-code'], 304)
 

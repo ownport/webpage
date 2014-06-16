@@ -10,13 +10,16 @@ class CachingHTTPAdapter(HTTPAdapter):
     ''' A HTTP-caching-aware Transport Adapter for Python Requests. The central
     portion of the API.
     '''
-    def __init__(self, path=None, **kwargs):
+    def __init__(self, cache=None, **kwargs):
 
-        log.debug('CachingHTTPAdapter.__init__(), path: %s, kwargs: %s' % (path, kwargs))
+        log.debug('CachingHTTPAdapter.__init__(), cache: %s, kwargs: %s' % (cache, kwargs))
         super(CachingHTTPAdapter, self).__init__(**kwargs)
 
         #: The HTTP Cache backing the adapter.
-        self.cache = HTTPCache(path=path)
+        if cache: 
+            self.cache = cache
+        else:
+            raise RuntimeError('Error! Cache backend is not defined')
 
 
     def send(self, request, **kwargs):

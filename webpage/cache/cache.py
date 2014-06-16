@@ -12,6 +12,7 @@ from logging import getLogger
 log = getLogger(__name__)
 
 from requests import Response
+from requests.structures import CaseInsensitiveDict
 
 
 # RFC 2616 specifies that we can cache 200 OK, 203 Non Authoritative,
@@ -29,27 +30,18 @@ CACHEABLE_VERBS = ('GET', 'HEAD', 'OPTIONS')
 # verbs. That works out well for us.
 NON_INVALIDATING_VERBS = CACHEABLE_VERBS
 
+class BaseCache(object):
 
-class HTTPCache(object):
-
-    def __init__(self, path):
-
-        log.debug('HTTPCache.__init__(), path: %s' % path)
-        if not path:
-            raise RuntimeError('Error! The path to cache is not defined, %s' % path)
-        # Make sure the path exists
-        try:
-            if not os.path.exists(os.path.dirname(path)):
-                os.makedirs(path)
-        except (IOError, OSError):
-            raise RuntimeError('Error! Cannot create cache directory, %s' % path)
-
-        self.path = path
+    def get(self, request):
+        raise NotImplementedError()
 
 
-    def _fn(self, name):
+    def put(self, response):
+        raise NotImplementedError()
 
-        return utils.offline_link(name, path=self.path)
+
+    def delete(self, request, response):
+        raise NotImplementedError()
 
 
     def handle_304(self, response):
@@ -64,8 +56,7 @@ class HTTPCache(object):
         '''
         log.debug('HTTPCache.handle_304(), url: %s' % response.url)
         try:
-            filename = self._fn(response.url)
-            cached_response = self._get[filename]
+            cached_response = self.get(response)
         except KeyError:
             cached_response = None
 
@@ -80,7 +71,7 @@ class HTTPCache(object):
         if request.method not in NON_INVALIDATING_VERBS:
             return None
 
-        cached_response = self._get(self._fn(url))
+        cached_response = self.get(request)
         if not cached_response:
             return None
 
@@ -143,28 +134,46 @@ class HTTPCache(object):
             if utils.url_contains_query(url):
                 return False
 
-        headers = dict(response.headers.copy())
-        headers['url'] = response.url
         if expiry:
-            headers['expiry'] = int(expiry.strftime('%s'))
+            response.headers['expiry'] = int(expiry.strftime('%s'))
         if creation:
-            headers['creation'] = int(creation.strftime('%s'))
-        headers['encoding'] = response.encoding.lower()
-        headers['status-code'] = int(response.status_code)
-
-        filename = self._fn(response.url)
-        self._save_file('%s.metadata' % filename, 
-                        json.dumps(headers, indent=4, sort_keys=True) + '\n')
-        self._save_file(filename, response.content)
+            response.headers['creation'] = int(creation.strftime('%s'))
+        self.put(response)
 
 
-    def _get(self, filename):
 
+class HTTPCache(BaseCache):
+
+    def __init__(self, path):
+
+        log.debug('HTTPCache.__init__(), path: %s' % path)
+        super(HTTPCache, self).__init__()
+
+        if not path:
+            raise RuntimeError('Error! The path to cache is not defined, %s' % path)
+        # Make sure the path exists
+        try:
+            if not os.path.exists(os.path.dirname(path)):
+                os.makedirs(path)
+        except (IOError, OSError):
+            raise RuntimeError('Error! Cannot create cache directory, %s' % path)
+
+        self.path = path
+
+
+    def _fn(self, name):
+
+        return utils.offline_link(name, path=self.path)
+
+
+    def get(self, request):
+
+        filename = self._fn(request.url)
         resp = Response()
 
         headers = self._read_file('%s.metadata' % filename)
         if headers:
-            headers = json.loads(headers)
+            headers = CaseInsensitiveDict(json.loads(headers))
             resp.url = headers.pop('url', None)
             resp.status_code = headers.pop('status-code', None)
             resp.encoding = headers.pop('encoding', None)
@@ -173,6 +182,19 @@ class HTTPCache(object):
             return resp
         else:
             return None
+
+    def put(self, response):
+
+        headers = dict(response.headers.copy())
+        headers['url'] = response.url
+        headers['encoding'] = response.encoding.lower()
+        headers['status-code'] = int(response.status_code)
+
+        filename = self._fn(response.url)
+        self._save_file('%s.metadata' % filename, 
+                        json.dumps(headers, indent=4, sort_keys=True) + '\n')
+        self._save_file(filename, response.content)
+
 
     def _read_file(self, filename):
 

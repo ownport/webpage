@@ -4,6 +4,7 @@ import unittest
 
 from webpage import fetcher 
 from webpage.fetcher import CODES_OK
+from webpage.cache.cache import HTTPCache
 from webpage.cache.adapter import CachingHTTPAdapter
 
 
@@ -93,7 +94,8 @@ class FetcherTest(unittest.TestCase):
     def test_fetch_with_cache(self):
         ''' test_fetch_with_cache
         '''
-        caching_adapter = CachingHTTPAdapter(path='tests/results/test_fetch_with_cache/')
+        cache = HTTPCache(path='tests/results/test_fetch_with_cache/')
+        caching_adapter = CachingHTTPAdapter(cache=cache)
         fetch = fetcher.Fetcher(caching_adapter=caching_adapter)
         self.assertTrue(isinstance(fetch, fetcher.Fetcher))
 

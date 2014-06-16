@@ -22,6 +22,8 @@ from content import PageContent
 from template import PageTemplate
 from cleaner import CleanerProfile
 from cache.utils import offline_link
+
+from cache.cache import HTTPCache
 from cache.adapter import CachingHTTPAdapter
 
 
@@ -55,7 +57,8 @@ class Webpage(object):
         caching_adapter = None
         if cached and self.path:
             cache_dir = os.path.join(self.path, 'cache/')
-            caching_adapter = CachingHTTPAdapter(path=cache_dir)
+            cache = HTTPCache(path=cache_dir)
+            caching_adapter = CachingHTTPAdapter(cache=cache)
         self.fetcher = fetcher.Fetcher(headers=self.headers, caching_adapter=caching_adapter)
 
         self.template = None

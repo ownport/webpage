@@ -174,6 +174,7 @@ class HTTPCache(BaseCache):
         headers = self._read_file('%s.metadata' % filename)
         if headers:
             headers = CaseInsensitiveDict(json.loads(headers))
+            headers['x-cache'] = 'HIT from %s' % self.__class__.__name__
             resp.url = headers.pop('url', None)
             resp.status_code = headers.pop('status-code', None)
             resp.encoding = headers.pop('encoding', None)

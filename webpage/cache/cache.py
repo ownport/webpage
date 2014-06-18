@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+import io
 import os
 import json
 import time
@@ -29,6 +30,15 @@ CACHEABLE_VERBS = ('GET', 'HEAD', 'OPTIONS')
 # cache entry for that URL. As it happens, these are also the cacheable
 # verbs. That works out well for us.
 NON_INVALIDATING_VERBS = CACHEABLE_VERBS
+
+
+TEXT_MEDIA_TYPES = [
+    'text/html', 'text/javascript', 'text/plain', 'text/xml',
+    
+    'application/atom+xml', 'application/json', 'application/javascript', 'application/rdf+xml',
+    'application/rss+xml', 'application/soap+xml', 'application/xml', 
+] 
+
 
 class BaseCache(object):
 
@@ -195,7 +205,7 @@ class HTTPCache(BaseCache):
         filename = self._fn(response.url)
         self._save_file('%s.metadata' % filename, 
                         json.dumps(headers, indent=4, sort_keys=True) + '\n')
-        self._save_file(filename, response.content)
+        self._save_file(filename, response.content, response.headers)
 
 
     def _read_file(self, filename):
@@ -207,8 +217,19 @@ class HTTPCache(BaseCache):
             return fh.read()
 
 
-    def _save_file(self, filename, content):
+    def _save_file(self, filename, content, headers={}):
 
-        with codecs.open(filename, 'w', encoding='utf8') as fh:
-            fh.write(content)    
+        content_disposition = headers.get(u'content-disposition')
+        if content_disposition:
+            new_filename = ''.join(re.findall(
+                                    r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
+                                    content_disposition, re.I))
+            if new_filename:
+                filename = os.path.join(os.path.dirname(filename), new_filename)
 
+        if filename and headers.get(u'content-type') in TEXT_MEDIA_TYPES:
+            with io.open(filename, 'w', encoding='utf8') as f:
+                f.write(content) 
+        elif filename:
+            with io.open(filename, 'wb') as f:
+                f.write(content) 

@@ -8,7 +8,7 @@ import os
 import re
 import json
 import copy
-import fetcher 
+import fetcher as fetcher_lib
 
 from os.path import basename
 from urlparse import urlparse
@@ -53,13 +53,7 @@ class Webpage(object):
         self.content = None
 
         self.path = path
-
-        caching_adapter = None
-        if cached and self.path:
-            cache_dir = os.path.join(self.path, 'cache/')
-            cache = HTTPCache(path=cache_dir)
-            caching_adapter = CachingHTTPAdapter(cache=cache)
-        self.fetcher = fetcher.Fetcher(headers=self.headers, caching_adapter=caching_adapter)
+        self.cached = cached
 
         self.template = None
         if template:
@@ -67,15 +61,37 @@ class Webpage(object):
 
         self.rules = rules
 
-        self._retrieve_page()
+        if path and cached:
+            fetcher = self._get_fetcher(
+                            headers=self.headers, 
+                            cached=self.cached, 
+                            cache_dir=os.path.join(self.path, 'cache/'))
+        else:
+            fetcher = self._get_fetcher(headers=self.headers)
+
+        log.debug('Webpage.__init__(): fetcher=%s' % fetcher)
+        log.debug('Webpage.__init__(): cached=%s' % self.cached)
+        log.debug('Webpage.__init__(): path=%s' % self.path)
+        self._retrieve_page(fetcher)
 
 
-    def _retrieve_page(self):
+    def _get_fetcher(self, headers={}, cached=False, cache_dir=None):
+        ''' returns fetcher
+        '''
+        log.debug('Webpage._get_fetcher()')
+        caching_adapter = None
+        if cached:
+            cache = HTTPCache(path=cache_dir)
+            caching_adapter = CachingHTTPAdapter(cache=cache)
+        return fetcher_lib.Fetcher(headers=headers, caching_adapter=caching_adapter)
+
+
+    def _retrieve_page(self, fetcher):
         ''' get page from cache if available
         '''
-        response = self.fetcher.fetch(self.url)
+        response = fetcher.fetch(self.url)
 
-        if response.get(u'status-code') == fetcher.CODES_OK: 
+        if response.get(u'status-code') == fetcher_lib.CODES_OK: 
             self.content = PageContent(self.url, response.pop('content'))
             self.metadata['headers'] = response 
         
@@ -97,6 +113,11 @@ class Webpage(object):
             raise RuntimeError('Error! The pattern is not defined')
 
         pattern = re.compile(pattern)
+
+        if self.cached and self.path:
+            fetcher = self._get_fetcher(headers=self.headers, cached=True, cache_dir=self.path)
+        else:
+            fetcher = self._get_fetcher(headers=self.headers)
 
         for link in self.content.links():
             if pattern and pattern.search(link):

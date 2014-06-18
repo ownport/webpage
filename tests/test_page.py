@@ -53,8 +53,6 @@ class WebpageTest(unittest.TestCase):
         wp = Webpage(url=SOURCE_URL_CACHED, path='tests/results/test_cached_page/', cached=True)
         self.assertTrue(isinstance(wp, Webpage))
         self.assertTrue(wp.metadata['headers']['x-cache'].startswith('HIT from'))
-        print wp.metadata
-        assert False
 
 
     def test_new_with_template(self):

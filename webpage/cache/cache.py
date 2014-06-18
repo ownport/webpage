@@ -213,7 +213,7 @@ class HTTPCache(BaseCache):
         if not os.path.exists(filename):
             return None
 
-        with codecs.open(filename, 'r', encoding='utf8') as fh:
+        with io.open(filename, 'r') as fh:
             return fh.read()
 
 
@@ -228,8 +228,8 @@ class HTTPCache(BaseCache):
                 filename = os.path.join(os.path.dirname(filename), new_filename)
 
         if filename and headers.get(u'content-type') in TEXT_MEDIA_TYPES:
-            with io.open(filename, 'w', encoding='utf8') as f:
-                f.write(content) 
+            with io.open(filename, 'w', encoding='utf8') as fh:
+                fh.write(content) 
         elif filename:
-            with io.open(filename, 'wb') as f:
-                f.write(content) 
+            with io.open(filename, 'wb') as fh:
+                fh.write(content) 

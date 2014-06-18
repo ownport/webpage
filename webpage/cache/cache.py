@@ -188,7 +188,8 @@ class HTTPCache(BaseCache):
 
         headers = dict(response.headers.copy())
         headers['url'] = response.url
-        headers['encoding'] = response.encoding.lower()
+        if response.encoding:
+            headers['encoding'] = response.encoding.lower()
         headers['status-code'] = int(response.status_code)
 
         filename = self._fn(response.url)

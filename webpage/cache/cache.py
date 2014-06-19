@@ -216,14 +216,13 @@ class HTTPCache(BaseCache):
             return None
 
         with io.open(filename, 'rb') as fh:
-            log.debug('HTTPCache._read_file(), file handler: %s' % dir(fh))
             return bytes(fh.read())
 
 
     def _save_file(self, filename, content, headers={}):
 
         log.debug('HTTPCache._save_file(), filename: %s' % filename)
-        log.debug('HTTPCache._save_file(), content: %s' % content)
+        log.debug('HTTPCache._save_file(), content size: %s' % len(content))
         log.debug('HTTPCache._save_file(), headers: %s' % headers)
 
         content_disposition = headers.get(u'content-disposition')

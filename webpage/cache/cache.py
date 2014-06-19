@@ -210,14 +210,21 @@ class HTTPCache(BaseCache):
 
     def _read_file(self, filename):
 
+        log.debug('HTTPCache._read_file(), filename: %s' % filename)
+
         if not os.path.exists(filename):
             return None
 
-        with io.open(filename, 'r') as fh:
-            return fh.read()
+        with io.open(filename, 'rb') as fh:
+            log.debug('HTTPCache._read_file(), file handler: %s' % dir(fh))
+            return bytes(fh.read())
 
 
     def _save_file(self, filename, content, headers={}):
+
+        log.debug('HTTPCache._save_file(), filename: %s' % filename)
+        log.debug('HTTPCache._save_file(), content: %s' % content)
+        log.debug('HTTPCache._save_file(), headers: %s' % headers)
 
         content_disposition = headers.get(u'content-disposition')
         if content_disposition:

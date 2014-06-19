@@ -8,8 +8,9 @@ from webpage.cleaner import CleanerProfile
 
 from webpage.fetcher import CODES_OK
 
-SOURCE_URL= 'http://localhost:8888/test_page/index.html'
-SOURCE_URL_CACHED= 'http://localhost:8888/index.html'
+SOURCE_URL = 'http://localhost:8888/test_page/index.html'
+SOURCE_URL_CACHED = 'http://localhost:8888/index.html'
+SOURCE_IMAGE_URL = 'http://localhost:8888/google_logo.jpg'
 
 
 class WebpageTest(unittest.TestCase):
@@ -52,6 +53,16 @@ class WebpageTest(unittest.TestCase):
         wp = Webpage(url=SOURCE_URL_CACHED, path='tests/results/test_cached_page/', cached=True)
         wp = Webpage(url=SOURCE_URL_CACHED, path='tests/results/test_cached_page/', cached=True)
         self.assertTrue(isinstance(wp, Webpage))
+        self.assertTrue(wp.metadata['headers']['x-cache'].startswith('HIT from'))
+
+
+    def test_cached_image(self):
+        ''' test_cached_image
+        '''
+        wp = Webpage(url=SOURCE_IMAGE_URL, path='tests/results/test_cached_image/', cached=True)
+        wp = Webpage(url=SOURCE_IMAGE_URL, path='tests/results/test_cached_image/', cached=True)
+        self.assertTrue(isinstance(wp, Webpage))
+        self.assertTrue(wp.metadata['headers']['x-cache'].startswith('HIT from'))
         self.assertTrue(wp.metadata['headers']['x-cache'].startswith('HIT from'))
 
 

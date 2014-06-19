@@ -115,7 +115,8 @@ class Webpage(object):
         pattern = re.compile(pattern)
 
         if self.cached and self.path:
-            fetcher = self._get_fetcher(headers=self.headers, cached=True, cache_dir=self.path)
+            cache_dir = os.path.join(self.path, 'files/')
+            fetcher = self._get_fetcher(headers=self.headers, cached=True, cache_dir=cache_dir)
         else:
             fetcher = self._get_fetcher(headers=self.headers)
 

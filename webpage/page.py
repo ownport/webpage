@@ -21,10 +21,9 @@ import utils
 from content import PageContent
 from template import PageTemplate
 from cleaner import CleanerProfile
-from cache.utils import offline_link
 
-from cache.cache import HTTPCache
-from cache.adapter import CachingHTTPAdapter
+from cache import HTTPCache
+from adapter import CachingHTTPAdapter
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
@@ -123,7 +122,7 @@ class Webpage(object):
         for link in self.content.links():
             if pattern and pattern.search(link):
 
-                offline_filename = os.path.join(self.path, offline_link(link))
+                offline_filename = os.path.join(self.path, utils.offline_link(link))
                 utils.makedirs(offline_filename)
 
                 response = fetcher.fetch(link, to_file=offline_filename)

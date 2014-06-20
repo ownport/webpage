@@ -4,8 +4,8 @@ import unittest
 
 from webpage import fetcher 
 from webpage.fetcher import CODES_OK
-from webpage.cache.cache import HTTPCache
-from webpage.cache.adapter import CachingHTTPAdapter
+from webpage.cache import HTTPCache
+from webpage.adapter import CachingHTTPAdapter
 
 
 SOURCE_URL= 'http://localhost:8888/test_page/index.html'

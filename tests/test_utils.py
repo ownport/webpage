@@ -4,7 +4,7 @@ import unittest
 
 from webpage.fetcher import gunzip
 from webpage.utils import validate_url
-from webpage.cache.utils import offline_link
+from webpage.utils import offline_link
 
 
 class UtilsTest(unittest.TestCase):

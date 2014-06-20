@@ -13,7 +13,7 @@ from logging import getLogger
 log = getLogger(__name__)
 
 from webpage.utils import gunzip
-from webpage.cache.adapter import CachingHTTPAdapter
+from webpage.adapter import CachingHTTPAdapter
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'

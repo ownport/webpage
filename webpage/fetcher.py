@@ -12,8 +12,8 @@ import requests
 from logging import getLogger
 log = getLogger(__name__)
 
-from webpage.utils import gunzip
-from webpage.adapter import CachingHTTPAdapter
+import utils
+from adapter import CachingHTTPAdapter
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)'
@@ -94,7 +94,9 @@ class Fetcher(object):
 
         response = self._handle_response(resp)
         if to_file:
-            self.save(to_file, response)
+            r = response.copy()
+            content = r.pop('content', None)
+            response['filename'] = utils.save(to_file, headers=r, content=content)
 
         return response
 
@@ -123,10 +125,10 @@ class Fetcher(object):
 
             # handle compressed content
             if response[u'content-type'] in ('application/x-gzip', 'application/gzip'):
-                response[u'content'] = gunzip(resp.content) 
+                response[u'content'] = utils.gunzip(resp.content) 
                 
             elif response[u'url'].endswith(u'.xml.gz'):
-                response[u'content'] = gunzip(resp.content) 
+                response[u'content'] = utils.gunzip(resp.content) 
             
             elif response[u'content-type'] in TEXT_MEDIA_TYPES:
 
@@ -146,28 +148,6 @@ class Fetcher(object):
             response[u'content-length'] = len(resp.content)
 
         return response
-
-
-    def save(self, filename, response):
-        ''' save content for file
-        '''
-        content_disposition = response.get(u'content-disposition')
-        if content_disposition:
-            new_filename = ''.join(re.findall(
-                                    r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
-                                    content_disposition, re.I))
-            if new_filename:
-                filename = os.path.join(os.path.dirname(filename), new_filename)
-
-        if filename and response[u'content-type'] in TEXT_MEDIA_TYPES:
-            with io.open(filename, 'w', encoding='utf8') as f:
-                f.write(response['content']) 
-        elif filename:
-            with io.open(filename, 'wb') as f:
-                f.write(response['content']) 
-
-
-        response['filename'] = filename
 
 
 def fetch(url, headers={}, timeout=60., to_file=None):

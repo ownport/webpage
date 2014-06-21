@@ -1,4 +1,6 @@
+import io
 import os
+import re
 import string
 import struct
 import urlparse
@@ -10,6 +12,15 @@ from cStringIO import StringIO
 
 RFC_1123_DT_STR = "%a, %d %b %Y %H:%M:%S GMT"
 RFC_850_DT_STR = "%A, %d-%b-%y %H:%M:%S GMT"
+
+
+TEXT_MEDIA_TYPES = [
+    'text/html', 'text/javascript', 'text/plain', 'text/xml',
+    
+    'application/atom+xml', 'application/json', 'application/javascript', 'application/rdf+xml',
+    'application/rss+xml', 'application/soap+xml', 'application/xml', 
+] 
+
 
 
 def build_date_header(dt):
@@ -170,3 +181,32 @@ def gunzip(data):
     return output
 
 
+def read(filename):
+
+    if not os.path.exists(filename):
+        return None
+
+    with io.open(filename, 'rb') as fh:
+        return bytes(fh.read())
+
+
+
+def save(filename, headers={}, content=None):
+    ''' save Request or Response to file
+    '''
+    content_disposition = headers.get(u'content-disposition', None)
+    if content_disposition:
+        new_filename = ''.join(re.findall(
+                                r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
+                                content_disposition, re.I))
+        if new_filename:
+            filename = os.path.join(os.path.dirname(filename), new_filename)
+
+    if filename and headers.get(u'content-type') in TEXT_MEDIA_TYPES:
+        with io.open(filename, 'w', encoding='utf8') as fh:
+             fh.write(content) 
+    elif filename and content:
+        with io.open(filename, 'wb') as fh:
+            fh.write(content) 
+
+    return filename

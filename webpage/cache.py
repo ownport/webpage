@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from logging import getLogger
 log = getLogger(__name__)
 
-from requests import Response
+from requests.models import Response
 from requests.structures import CaseInsensitiveDict
 
 
@@ -30,14 +30,6 @@ CACHEABLE_VERBS = ('GET', 'HEAD', 'OPTIONS')
 # cache entry for that URL. As it happens, these are also the cacheable
 # verbs. That works out well for us.
 NON_INVALIDATING_VERBS = CACHEABLE_VERBS
-
-
-TEXT_MEDIA_TYPES = [
-    'text/html', 'text/javascript', 'text/plain', 'text/xml',
-    
-    'application/atom+xml', 'application/json', 'application/javascript', 'application/rdf+xml',
-    'application/rss+xml', 'application/soap+xml', 'application/xml', 
-] 
 
 
 class BaseCache(object):
@@ -181,7 +173,7 @@ class HTTPCache(BaseCache):
         filename = self._fn(request.url)
         resp = Response()
 
-        headers = self._read_file('%s.metadata' % filename)
+        headers = utils.read('%s.metadata' % filename)
         if headers:
             headers = CaseInsensitiveDict(json.loads(headers))
             headers['x-cache'] = 'HIT from %s' % self.__class__.__name__
@@ -189,10 +181,11 @@ class HTTPCache(BaseCache):
             resp.status_code = headers.pop('status-code', None)
             resp.encoding = headers.pop('encoding', None)
             resp.headers = headers
-            resp._content = self._read_file(filename)
+            resp._content = utils.read(filename)
             return resp
         else:
             return None
+            
 
     def put(self, response):
 
@@ -203,39 +196,10 @@ class HTTPCache(BaseCache):
         headers['status-code'] = int(response.status_code)
 
         filename = self._fn(response.url)
-        self._save_file('%s.metadata' % filename, 
-                        json.dumps(headers, indent=4, sort_keys=True) + '\n')
-        self._save_file(filename, response.content, response.headers)
+        utils.save('%s.metadata' % filename, 
+                        content=json.dumps(headers, indent=4, sort_keys=True) + '\n')
+        utils.save(filename, 
+                        headers=response.headers, 
+                        content=response.content)
 
 
-    def _read_file(self, filename):
-
-        log.debug('HTTPCache._read_file(), filename: %s' % filename)
-
-        if not os.path.exists(filename):
-            return None
-
-        with io.open(filename, 'rb') as fh:
-            return bytes(fh.read())
-
-
-    def _save_file(self, filename, content, headers={}):
-
-        log.debug('HTTPCache._save_file(), filename: %s' % filename)
-        log.debug('HTTPCache._save_file(), content size: %s' % len(content))
-        log.debug('HTTPCache._save_file(), headers: %s' % headers)
-
-        content_disposition = headers.get(u'content-disposition')
-        if content_disposition:
-            new_filename = ''.join(re.findall(
-                                    r'attachment;\s*filename\s*=\s*[\"\']?(?P<filename>.*?)[\"\']?$', 
-                                    content_disposition, re.I))
-            if new_filename:
-                filename = os.path.join(os.path.dirname(filename), new_filename)
-
-        if filename and headers.get(u'content-type') in TEXT_MEDIA_TYPES:
-            with io.open(filename, 'w', encoding='utf8') as fh:
-                fh.write(content) 
-        elif filename:
-            with io.open(filename, 'wb') as fh:
-                fh.write(content) 

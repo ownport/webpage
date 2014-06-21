@@ -169,13 +169,13 @@ class Webpage(object):
 
         # save content metadata
         if metadata:
-            with io.open(os.path.join(self.path, '%s.metadata' % filename), 'w', encoding='utf8') as meta:
-                meta.write(unicode(json.dumps(self.metadata['headers'], indent=4, sort_keys=True)) + '\n')
+            utils.save(os.path.join(self.path, '%s.metadata' % filename), 
+                    content=unicode(json.dumps(self.metadata['headers'], indent=4, sort_keys=True)))
 
         # save resources metadata
         if resources and self.metadata['resources']:
-            with io.open(os.path.join(self.path, '%s.resources' % filename), 'w', encoding='utf8') as meta:
-                meta.write(unicode(json.dumps(self.metadata['resources'], indent=4, sort_keys=True)) + '\n')
+            utils.save(os.path.join(self.path, '%s.resources' % filename), 
+                    content=unicode(json.dumps(self.metadata['resources'], indent=4, sort_keys=True)))
 
         # save content
         offline_content = copy.deepcopy(self.content)

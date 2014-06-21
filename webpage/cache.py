@@ -7,7 +7,7 @@ import time
 import utils
 import codecs
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from logging import getLogger
 log = getLogger(__name__)

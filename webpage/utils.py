@@ -95,7 +95,10 @@ def expires_from_cache_control(header, current_time):
             _, duration = field.split('=')
             duration = int(duration)
 
-    interval = datetime.timedelta(seconds=int(duration))
+    try:
+        interval = datetime.timedelta(seconds=int(duration))
+    except TypeError:
+        return None
 
     return current_time + interval
 

@@ -103,16 +103,6 @@ def expires_from_cache_control(header, current_time):
     return current_time + interval
 
 
-def url_contains_query(url):
-    ''' A very stupid function for determining if a URL contains a query string
-    or not.
-    '''
-    if urlparse.urlparse(url).query:
-        return True
-    else:
-        return False
-
-
 def offline_link(link, path='files/'):
     ''' rename link for offline use
     ''' 

@@ -32,121 +32,9 @@ CACHEABLE_VERBS = ('GET', 'HEAD', 'OPTIONS')
 NON_INVALIDATING_VERBS = CACHEABLE_VERBS
 
 
-class BaseCache(object):
+class HTTPCache(object):
 
-    def get(self, request):
-        raise NotImplementedError()
-
-
-    def put(self, response):
-        raise NotImplementedError()
-
-
-    def delete(self, request, response):
-        raise NotImplementedError()
-
-
-    def handle_304(self, response):
-        ''' Given a 304 response, retrieves the cached entry. This unconditionally
-        returns the cached entry, so it can be used when the 'intelligent'
-        behaviour of retrieve() is not desired.
-
-        Returns None if there is no entry in the cache.
-
-        :param response: The 304 response to find the cached entry for. Should be 
-                        a Requests :class:`Response <Response>`.
-        '''
-        log.debug('HTTPCache.handle_304(), url: %s' % response.url)
-        try:
-            cached_response = self.get(response)
-        except KeyError:
-            cached_response = None
-
-        return cached_response
-
-
-    def retrieve(self, request):
-
-        log.debug('HTTPCache.retrieve(), url: %s' % request.url)
-        url = request.url
-
-        if request.method not in NON_INVALIDATING_VERBS:
-            return None
-
-        cached_response = self.get(request)
-        if not cached_response:
-            return None
-
-        if cached_response.headers.get('expiry') is None:
-            # We have no explicit expiry time, so we weren't instructed to
-            # cache. Add an 'If-Modified-Since' header.
-            creation = datetime.fromtimestamp(cached_response.headers.get('creation'))
-            header = utils.build_date_header(creation)
-            request.headers['If-Modified-Since'] = header
-        else:
-            # We have an explicit expiry time. If we're earlier than the expiry
-            # time, return the response.
-            now = datetime.utcnow()
-
-            if now <= datetime.fromtimestamp(cached_response.headers.get('expiry')):
-                return_response = cached_response
-
-        return cached_response
-
-
-    def store(self, response):
-
-        log.debug('HTTPCache.store(), url: %s' % response.url)
-        if response.status_code not in CACHEABLE_RCS:
-            return False
-
-        if response.request.method not in CACHEABLE_VERBS:
-            return False
-
-        url = response.url
-        now = datetime.utcnow()
-
-        # Get the value of the 'Date' header, if it exists. If it doesn't, just
-        # use now.
-        creation = utils.date_header_or_default('Date', now, response)
-
-        # Get the value of the 'Cache-Control' header, if it exists.
-        cc = response.headers.get('Cache-Control', None)
-        if cc is not None:
-            expiry = utils.expires_from_cache_control(cc, now)
-
-            # If the above returns None, we are explicitly instructed not to
-            # cache this.
-            if expiry is None:
-                return False
-
-        # Get the value of the 'Expires' header, if it exists, and if we don't
-        # have anything from the 'Cache-Control' header.
-        if cc is None:
-            expiry = utils.date_header_or_default('Expires', None, response)
-
-        # If the expiry date is earlier or the same as the Date header, don't
-        # cache the response at all.
-        if expiry is not None and expiry <= creation:
-            return False
-
-        # If there's a query portion of the url and it's a GET, don't cache
-        # this unless explicitly instructed to.
-        if expiry is None and response.request.method == 'GET':
-            if utils.url_contains_query(url):
-                return False
-
-        if expiry:
-            response.headers['expiry'] = int(expiry.strftime('%s'))
-        if creation:
-            response.headers['creation'] = int(creation.strftime('%s'))
-        self.put(response)
-
-
-
-class HTTPCache(BaseCache):
-
-    def __init__(self, path):
+    def __init__(self, path, expiration_time=-1):
 
         log.debug('HTTPCache.__init__(), path: %s' % path)
         super(HTTPCache, self).__init__()
@@ -168,14 +56,17 @@ class HTTPCache(BaseCache):
         return utils.offline_link(name, path=self.path)
 
 
-    def get(self, request):
+    def retrieve(self, request):
 
         filename = self._fn(request.url)
         resp = Response()
 
         headers = utils.read('%s.metadata' % filename)
         if headers:
-            headers = CaseInsensitiveDict(json.loads(headers))
+            try:
+                headers = CaseInsensitiveDict(json.loads(headers))
+            except ValueError:
+                return None
             headers['x-cache'] = 'HIT from %s' % self.__class__.__name__
             resp.url = headers.pop('url', None)
             resp.status_code = headers.pop('status-code', None)
@@ -187,7 +78,7 @@ class HTTPCache(BaseCache):
             return None
             
 
-    def put(self, response):
+    def store(self, response):
 
         headers = dict(response.headers.copy())
         headers['url'] = response.url
@@ -201,5 +92,45 @@ class HTTPCache(BaseCache):
         utils.save(filename, 
                         headers=response.headers, 
                         content=response.content)
+        return True
+
+
+class URLRulesHTTPCache(HTTPCache):
+    ''' HTTP cache based on URL rules
+    '''
+    def __init__(self, urls={}, path=None, expiration_time=-1):
+        ''' __init__
+
+        - urls              - list of URL patters
+        - path              - where files will be stores
+        - expiration-time   - expiration time in seconds
+        '''
+        super(URLRulesHTTPCache, self).__init__(path=path, expiration_time=expiration_time)
+        if isinstance(urls, (list, set, tuple)):
+            self._urls = list(urls)
+        else:
+            raise RuntimeError('Error! URLs are not defined')
+
+
+    def retrieve(self, request):
+        ''' retrieve
+        '''
+        if request.url not in self._urls:
+            return None
+        return super(URLRulesHTTPCache, self).retrieve(request)
+
+
+    def store(self, response):
+        ''' store
+        '''
+        if not response or not isinstance(response, Response):
+            return False
+
+        if response.url not in self._urls:
+            return False
+            
+        return super(URLRulesHTTPCache, self).store(response)
+
+
 
 

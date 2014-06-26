@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import json
 import unittest
@@ -67,3 +69,12 @@ class UtilsTest(unittest.TestCase):
         cache_control_header = 'cache, max-age=100'
         self.assertEqual(utils.expires_from_cache_control(cache_control_header, now),
                         now+timedelta(seconds=100))
+
+
+    def test_save(self):
+        ''' test_save
+        '''
+        content = u'тест test テスト 测试 테스트'
+        utils.save( filename='tests/results/unicode-content.txt', 
+                    headers = {'content-type': 'text/plain'},
+                    content=content)
